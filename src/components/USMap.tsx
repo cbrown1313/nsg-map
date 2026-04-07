@@ -10,6 +10,28 @@ import {
 } from '@/data/locations';
 import MapTooltip from './MapTooltip';
 
+// Approximate center coordinates for labeled states on 960x600 viewBox
+const STATE_LABEL_COORDS: Record<string, { x: number; y: number }> = {
+  // Licensed states
+  TX: { x: 460, y: 440 }, FL: { x: 735, y: 480 }, LA: { x: 590, y: 440 },
+  MS: { x: 615, y: 410 }, GA: { x: 710, y: 390 },
+  KS: { x: 430, y: 320 }, WA: { x: 140, y: 105 }, OR: { x: 115, y: 165 },
+  HI: { x: 305, y: 535 },
+  // PSYPACT states
+  AL: { x: 660, y: 400 }, AZ: { x: 200, y: 390 }, AR: { x: 545, y: 385 },
+  CO: { x: 300, y: 300 }, CT: { x: 870, y: 200 }, DE: { x: 840, y: 275 },
+  DC: { x: 830, y: 285 }, ID: { x: 195, y: 180 }, IL: { x: 600, y: 300 },
+  IN: { x: 640, y: 290 }, KY: { x: 680, y: 320 }, ME: { x: 895, y: 120 },
+  MD: { x: 815, y: 280 }, MI: { x: 660, y: 230 }, MN: { x: 500, y: 180 },
+  MO: { x: 545, y: 330 }, NE: { x: 420, y: 270 }, NV: { x: 160, y: 280 },
+  NH: { x: 880, y: 155 }, NJ: { x: 855, y: 255 }, NC: { x: 770, y: 345 },
+  ND: { x: 430, y: 170 }, OH: { x: 695, y: 275 }, OK: { x: 460, y: 370 },
+  PA: { x: 795, y: 240 }, RI: { x: 885, y: 210 }, SC: { x: 745, y: 370 },
+  SD: { x: 420, y: 215 }, TN: { x: 670, y: 350 }, UT: { x: 230, y: 300 },
+  VT: { x: 865, y: 145 }, VA: { x: 780, y: 305 }, WV: { x: 740, y: 300 },
+  WI: { x: 560, y: 195 }, WY: { x: 290, y: 230 },
+};
+
 const STATE_FILL: Record<StateTier, string> = {
   licensed: 'hsl(180, 55%, 23%)',
   psypact: 'hsl(210, 50%, 53%)',
@@ -115,7 +137,28 @@ const USMap = () => {
           );
         })}
 
-        {/* Clinic pins */}
+        {/* State abbreviation labels */}
+        {Object.entries(STATE_LABEL_COORDS).map(([code, pos]) => {
+          const tier = getStateTier(code);
+          if (tier === 'none' || tier === 'excluded') return null;
+          return (
+            <text
+              key={`label-${code}`}
+              x={pos.x}
+              y={pos.y}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fill="hsl(0, 0%, 100%)"
+              fontSize="10"
+              fontWeight="600"
+              fontFamily="system-ui, sans-serif"
+              className="pointer-events-none select-none"
+            >
+              {code}
+            </text>
+          );
+        })}
+
         {CLINIC_LOCATIONS.map((clinic) => (
           <g
             key={clinic.id}
