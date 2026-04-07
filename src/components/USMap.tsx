@@ -121,6 +121,8 @@ const USMap = () => {
             key={clinic.id}
             className="cursor-pointer"
             onClick={() => handlePinClick(clinic.slug)}
+            onMouseEnter={() => setHoveredPin(clinic.id)}
+            onMouseLeave={() => setHoveredPin(null)}
             role="button"
             tabIndex={0}
             aria-label={`${clinic.name} clinic`}
@@ -149,7 +151,30 @@ const USMap = () => {
               r="2"
               fill="hsl(0, 0%, 100%)"
             />
-            <title>{clinic.name}</title>
+            {/* Hover label */}
+            {hoveredPin === clinic.id && (
+              <g>
+                <rect
+                  x={clinic.svgX + 10}
+                  y={clinic.svgY - 12}
+                  width={clinic.name.length * 6.5 + 12}
+                  height={20}
+                  rx="4"
+                  fill="hsl(230, 40%, 17%)"
+                  opacity="0.95"
+                />
+                <text
+                  x={clinic.svgX + 16}
+                  y={clinic.svgY + 2}
+                  fill="hsl(0, 0%, 100%)"
+                  fontSize="11"
+                  fontFamily="system-ui, sans-serif"
+                  fontWeight="500"
+                >
+                  {clinic.name}
+                </text>
+              </g>
+            )}
           </g>
         ))}
       </svg>
