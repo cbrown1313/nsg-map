@@ -29,14 +29,14 @@ const STATE_LABEL_COORDS: Record<string, { x: number; y: number; anchor?: { x: n
   SD: { x: 420, y: 215 }, TN: { x: 670, y: 350 }, UT: { x: 230, y: 300 },
   VA: { x: 780, y: 310 }, WI: { x: 560, y: 195 }, WY: { x: 290, y: 230 },
   // Small states — offset labels with leader lines from state center (anchor) to label position
-  CT: { x: 920, y: 205, anchor: { x: 872, y: 205 } },
-  RI: { x: 920, y: 218, anchor: { x: 878, y: 215 } },
-  NJ: { x: 920, y: 257, anchor: { x: 855, y: 255 } },
-  DE: { x: 920, y: 270, anchor: { x: 843, y: 273 } },
-  MD: { x: 920, y: 283, anchor: { x: 820, y: 280 } },
-  DC: { x: 920, y: 296, anchor: { x: 828, y: 290 } },
-  NH: { x: 920, y: 155, anchor: { x: 878, y: 160 } },
-  VT: { x: 920, y: 142, anchor: { x: 862, y: 148 } },
+  CT: { x: 920, y: 205, anchor: { x: 859, y: 179 } },
+  RI: { x: 920, y: 218, anchor: { x: 878, y: 170 } },
+  NJ: { x: 920, y: 257, anchor: { x: 836, y: 216 } },
+  DE: { x: 920, y: 270, anchor: { x: 830, y: 239 } },
+  MD: { x: 920, y: 283, anchor: { x: 801, y: 247 } },
+  DC: { x: 920, y: 296, anchor: { x: 805, y: 249 } },
+  NH: { x: 920, y: 155, anchor: { x: 869, y: 122 } },
+  VT: { x: 920, y: 142, anchor: { x: 847, y: 127 } },
   WV: { x: 740, y: 300 },
 };
 
