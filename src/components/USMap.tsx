@@ -137,7 +137,28 @@ const USMap = () => {
           );
         })}
 
-        {/* Clinic pins */}
+        {/* State abbreviation labels */}
+        {Object.entries(STATE_LABEL_COORDS).map(([code, pos]) => {
+          const tier = getStateTier(code);
+          if (tier === 'none' || tier === 'excluded') return null;
+          return (
+            <text
+              key={`label-${code}`}
+              x={pos.x}
+              y={pos.y}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fill="hsl(0, 0%, 100%)"
+              fontSize="10"
+              fontWeight="600"
+              fontFamily="system-ui, sans-serif"
+              className="pointer-events-none select-none"
+            >
+              {code}
+            </text>
+          );
+        })}
+
         {CLINIC_LOCATIONS.map((clinic) => (
           <g
             key={clinic.id}
