@@ -215,24 +215,23 @@ const USMap = () => {
             <circle
               cx={clinic.svgX}
               cy={clinic.svgY + 1}
-              r="6"
+              r={hoveredPin === clinic.id ? 7 : 6}
               fill="hsla(230, 40%, 17%, 0.3)"
             />
             {/* Pin circle */}
             <circle
               cx={clinic.svgX}
               cy={clinic.svgY}
-              r="5"
+              r={hoveredPin === clinic.id ? 6.5 : 5}
               fill="hsl(230, 40%, 17%)"
               stroke="hsl(0, 0%, 100%)"
               strokeWidth="1.5"
-              className="transition-transform duration-150 hover:scale-125 origin-center"
             />
             {/* Pin inner dot */}
             <circle
               cx={clinic.svgX}
               cy={clinic.svgY}
-              r="2"
+              r={hoveredPin === clinic.id ? 2.5 : 2}
               fill="hsl(0, 0%, 100%)"
             />
             {/* Hover label */}
