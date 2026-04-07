@@ -149,16 +149,30 @@ const USMap = () => {
         {Object.entries(STATE_LABEL_COORDS).map(([code, pos]) => {
           const tier = getStateTier(code);
           if (tier === 'none' || tier === 'excluded') return null;
+          const hasLeader = 'anchor' in pos && pos.anchor;
+          const textAnchor = hasLeader ? 'start' : 'middle';
           return (
             <g key={`label-${code}`}>
+              {/* Leader line for offset labels */}
+              {hasLeader && pos.anchor && (
+                <line
+                  x1={pos.anchor.x}
+                  y1={pos.anchor.y}
+                  x2={pos.x - 2}
+                  y2={pos.y}
+                  stroke="hsl(0, 0%, 55%)"
+                  strokeWidth="0.75"
+                  className="pointer-events-none"
+                />
+              )}
               {/* Text shadow/outline for readability */}
               <text
                 x={pos.x}
                 y={pos.y}
-                textAnchor="middle"
+                textAnchor={textAnchor}
                 dominantBaseline="central"
                 fill="none"
-                stroke="hsla(0, 0%, 0%, 0.4)"
+                stroke={hasLeader ? 'hsla(0, 0%, 100%, 0.8)' : 'hsla(0, 0%, 0%, 0.4)'}
                 strokeWidth="3"
                 fontSize="10"
                 fontWeight="600"
@@ -171,9 +185,9 @@ const USMap = () => {
               <text
                 x={pos.x}
                 y={pos.y}
-                textAnchor="middle"
+                textAnchor={textAnchor}
                 dominantBaseline="central"
-                fill="hsl(0, 0%, 100%)"
+                fill={hasLeader ? 'hsl(0, 0%, 30%)' : 'hsl(0, 0%, 100%)'}
                 fontSize="10"
                 fontWeight="600"
                 fontFamily="system-ui, sans-serif"
