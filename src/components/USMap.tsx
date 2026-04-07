@@ -11,33 +11,34 @@ import {
 import MapTooltip from './MapTooltip';
 
 // Approximate center coordinates for labeled states on 960x600 viewBox
-// Label positions — offset labels use leader lines for small states
+// Label positions — calculated from SVG path bounding-box centers
+// Small NE states use offset labels with leader lines
 const STATE_LABEL_COORDS: Record<string, { x: number; y: number; anchor?: { x: number; y: number } }> = {
   // Licensed states
-  TX: { x: 460, y: 440 }, FL: { x: 735, y: 480 }, LA: { x: 590, y: 440 },
-  MS: { x: 615, y: 410 }, GA: { x: 710, y: 390 },
-  KS: { x: 430, y: 320 }, WA: { x: 140, y: 105 }, OR: { x: 115, y: 165 },
-  HI: { x: 305, y: 535 },
+  TX: { x: 409, y: 448 }, FL: { x: 723, y: 480 }, LA: { x: 572, y: 449 },
+  MS: { x: 601, y: 412 }, GA: { x: 719, y: 400 },
+  KS: { x: 444, y: 290 }, WA: { x: 125, y: 50 }, OR: { x: 105, y: 118 },
+  HI: { x: 290, y: 546 },
   // PSYPACT states — large enough for inline labels
-  AL: { x: 660, y: 400 }, AZ: { x: 200, y: 390 }, AR: { x: 545, y: 385 },
-  CO: { x: 300, y: 300 }, ID: { x: 195, y: 180 }, IL: { x: 600, y: 300 },
-  IN: { x: 640, y: 290 }, KY: { x: 680, y: 320 }, ME: { x: 895, y: 120 },
-  MI: { x: 660, y: 230 }, MN: { x: 500, y: 180 },
-  MO: { x: 545, y: 330 }, NE: { x: 420, y: 270 }, NV: { x: 160, y: 280 },
-  NC: { x: 770, y: 345 }, ND: { x: 430, y: 170 }, OH: { x: 695, y: 275 },
-  OK: { x: 460, y: 370 }, PA: { x: 795, y: 240 }, SC: { x: 745, y: 370 },
-  SD: { x: 420, y: 215 }, TN: { x: 670, y: 350 }, UT: { x: 230, y: 300 },
-  VA: { x: 780, y: 310 }, WI: { x: 560, y: 195 }, WY: { x: 290, y: 230 },
-  // Small states — offset labels with leader lines from state center (anchor) to label position
-  CT: { x: 920, y: 205, anchor: { x: 859, y: 179 } },
-  RI: { x: 920, y: 218, anchor: { x: 878, y: 170 } },
-  NJ: { x: 920, y: 257, anchor: { x: 836, y: 216 } },
-  DE: { x: 920, y: 270, anchor: { x: 830, y: 239 } },
-  MD: { x: 920, y: 283, anchor: { x: 801, y: 247 } },
-  DC: { x: 920, y: 296, anchor: { x: 805, y: 249 } },
-  NH: { x: 920, y: 155, anchor: { x: 869, y: 122 } },
-  VT: { x: 920, y: 142, anchor: { x: 847, y: 127 } },
-  WV: { x: 740, y: 300 },
+  AL: { x: 660, y: 409 }, AZ: { x: 201, y: 364 }, AR: { x: 551, y: 370 },
+  CO: { x: 322, y: 271 }, ID: { x: 200, y: 112 }, IL: { x: 592, y: 259 },
+  IN: { x: 646, y: 255 }, KY: { x: 662, y: 298 }, ME: { x: 895, y: 88 },
+  MI: { x: 670, y: 180 }, MN: { x: 523, y: 117 },
+  MO: { x: 545, y: 293 }, NE: { x: 424, y: 223 }, NV: { x: 140, y: 251 },
+  NC: { x: 770, y: 328 }, ND: { x: 419, y: 93 }, OH: { x: 702, y: 234 },
+  OK: { x: 438, y: 359 }, PA: { x: 785, y: 209 }, SC: { x: 756, y: 376 },
+  SD: { x: 417, y: 164 }, TN: { x: 660, y: 338 }, UT: { x: 224, y: 248 },
+  VA: { x: 771, y: 279 }, WI: { x: 576, y: 152 }, WY: { x: 300, y: 181 },
+  WV: { x: 753, y: 261 },
+  // Small states — offset labels with leader lines
+  CT: { x: 920, y: 195, anchor: { x: 859, y: 179 } },
+  RI: { x: 920, y: 208, anchor: { x: 878, y: 170 } },
+  NJ: { x: 920, y: 230, anchor: { x: 836, y: 216 } },
+  DE: { x: 920, y: 243, anchor: { x: 830, y: 239 } },
+  MD: { x: 920, y: 256, anchor: { x: 801, y: 247 } },
+  DC: { x: 920, y: 269, anchor: { x: 805, y: 249 } },
+  NH: { x: 920, y: 140, anchor: { x: 869, y: 122 } },
+  VT: { x: 920, y: 127, anchor: { x: 847, y: 127 } },
 };
 
 const STATE_FILL: Record<StateTier, string> = {
