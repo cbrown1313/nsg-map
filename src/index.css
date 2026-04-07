@@ -38,20 +38,19 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
+    /* NSG Map Colors */
+    --nsg-licensed: 180 55% 23%;
+    --nsg-psypact: 210 50% 53%;
+    --nsg-pin: 230 40% 17%;
+    --nsg-no-coverage: 0 0% 94%;
+
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 

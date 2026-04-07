@@ -57,6 +57,12 @@ export default {
           border: "hsl(var(--sidebar-border))",
           ring: "hsl(var(--sidebar-ring))",
         },
+        nsg: {
+          licensed: "hsl(var(--nsg-licensed))",
+          psypact: "hsl(var(--nsg-psypact))",
+          pin: "hsl(var(--nsg-pin))",
+          "no-coverage": "hsl(var(--nsg-no-coverage))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
