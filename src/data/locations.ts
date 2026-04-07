@@ -60,12 +60,12 @@ export interface ClinicLocation {
 }
 
 export const CLINIC_LOCATIONS: ClinicLocation[] = [
-  { id: 'league-city', name: 'Houston – League City', city: 'League City', state: 'TX', slug: 'houston-league-city', svgX: 500, svgY: 460 },
-  { id: 'missouri-city', name: 'Houston – Missouri City', city: 'Missouri City', state: 'TX', slug: 'houston-missouri-city', svgX: 490, svgY: 450 },
-  { id: 'plano', name: 'Dallas – Plano', city: 'Plano', state: 'TX', slug: 'dallas-plano', svgX: 490, svgY: 400 },
-  { id: 'pensacola', name: 'Pensacola', city: 'Pensacola', state: 'FL', slug: 'pensacola', svgX: 640, svgY: 430 },
-  { id: 'slidell', name: 'New Orleans – Slidell', city: 'Slidell', state: 'LA', slug: 'new-orleans-slidell', svgX: 610, svgY: 440 },
-  { id: 'ridgeland', name: 'Jackson – Ridgeland', city: 'Ridgeland', state: 'MS', slug: 'jackson-ridgeland', svgX: 610, svgY: 400 },
-  { id: 'alpharetta', name: 'Atlanta – Alpharetta', city: 'Alpharetta', state: 'GA', slug: 'atlanta-alpharetta', svgX: 680, svgY: 380 },
-  { id: 'fort-lauderdale', name: 'Fort Lauderdale', city: 'Fort Lauderdale', state: 'FL', slug: 'fort-lauderdale', svgX: 760, svgY: 510 },
+  { id: 'league-city', name: 'Houston – League City', city: 'League City', state: 'TX', slug: 'houston-league-city', svgX: 460, svgY: 455 },
+  { id: 'missouri-city', name: 'Houston – Missouri City', city: 'Missouri City', state: 'TX', slug: 'houston-missouri-city', svgX: 450, svgY: 445 },
+  { id: 'plano', name: 'Dallas – Plano', city: 'Plano', state: 'TX', slug: 'dallas-plano', svgX: 440, svgY: 400 },
+  { id: 'pensacola', name: 'Pensacola', city: 'Pensacola', state: 'FL', slug: 'pensacola', svgX: 648, svgY: 435 },
+  { id: 'slidell', name: 'New Orleans – Slidell', city: 'Slidell', state: 'LA', slug: 'new-orleans-slidell', svgX: 600, svgY: 450 },
+  { id: 'ridgeland', name: 'Jackson – Ridgeland', city: 'Ridgeland', state: 'MS', slug: 'jackson-ridgeland', svgX: 600, svgY: 410 },
+  { id: 'alpharetta', name: 'Atlanta – Alpharetta', city: 'Alpharetta', state: 'GA', slug: 'atlanta-alpharetta', svgX: 700, svgY: 375 },
+  { id: 'fort-lauderdale', name: 'Fort Lauderdale', city: 'Fort Lauderdale', state: 'FL', slug: 'fort-lauderdale', svgX: 773, svgY: 500 },
 ];
