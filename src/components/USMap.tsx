@@ -28,6 +28,7 @@ const USMap = () => {
   const navigate = useNavigate();
   const svgRef = useRef<SVGSVGElement>(null);
   const [hoveredState, setHoveredState] = useState<string | null>(null);
+  const [hoveredPin, setHoveredPin] = useState<string | null>(null);
   const [tooltip, setTooltip] = useState<{
     stateCode: string;
     position: { x: number; y: number };
