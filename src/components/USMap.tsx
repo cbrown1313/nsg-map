@@ -142,20 +142,38 @@ const USMap = () => {
           const tier = getStateTier(code);
           if (tier === 'none' || tier === 'excluded') return null;
           return (
-            <text
-              key={`label-${code}`}
-              x={pos.x}
-              y={pos.y}
-              textAnchor="middle"
-              dominantBaseline="central"
-              fill="hsl(0, 0%, 100%)"
-              fontSize="10"
-              fontWeight="600"
-              fontFamily="system-ui, sans-serif"
-              className="pointer-events-none select-none"
-            >
-              {code}
-            </text>
+            <g key={`label-${code}`}>
+              {/* Text shadow/outline for readability */}
+              <text
+                x={pos.x}
+                y={pos.y}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fill="none"
+                stroke="hsla(0, 0%, 0%, 0.4)"
+                strokeWidth="3"
+                fontSize="10"
+                fontWeight="600"
+                fontFamily="system-ui, sans-serif"
+                className="pointer-events-none select-none"
+                paintOrder="stroke"
+              >
+                {code}
+              </text>
+              <text
+                x={pos.x}
+                y={pos.y}
+                textAnchor="middle"
+                dominantBaseline="central"
+                fill="hsl(0, 0%, 100%)"
+                fontSize="10"
+                fontWeight="600"
+                fontFamily="system-ui, sans-serif"
+                className="pointer-events-none select-none"
+              >
+                {code}
+              </text>
+            </g>
           );
         })}
 
