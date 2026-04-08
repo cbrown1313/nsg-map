@@ -56,7 +56,6 @@ const STATE_HOVER: Record<StateTier, string> = {
 };
 
 const USMap = () => {
-  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const svgRef = useRef<SVGSVGElement>(null);
   const [hoveredState, setHoveredState] = useState<string | null>(null);
