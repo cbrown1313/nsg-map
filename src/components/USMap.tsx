@@ -1,5 +1,4 @@
 import { useState, useCallback, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { US_STATES } from '@/data/us-states';
 import {
