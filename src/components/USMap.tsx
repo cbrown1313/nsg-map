@@ -73,10 +73,8 @@ const USMap = () => {
 
       if (tier === 'licensed') {
         if (LICENSE_ONLY_STATES.has(stateCode)) {
-          navigate('/our-providers/');
+          window.open('https://neurocognitivespecialtygroup.com/our-providers/', '_blank', 'noopener,noreferrer');
         }
-        // Licensed states with clinics — clicking the state itself does nothing special
-        // Users click pins for clinic navigation
         return;
       }
 
@@ -93,18 +91,16 @@ const USMap = () => {
         }
       }
     },
-    [navigate]
+    []
   );
 
   const handlePinClick = useCallback(
     (clinic: typeof CLINIC_LOCATIONS[number]) => {
       if (clinic.externalUrl) {
         window.open(clinic.externalUrl, '_blank', 'noopener,noreferrer');
-      } else {
-        navigate(`/locations/${clinic.slug}/`);
       }
     },
-    [navigate]
+    []
   );
 
   const isInteractive = (tier: StateTier) =>
