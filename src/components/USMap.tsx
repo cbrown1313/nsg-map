@@ -99,8 +99,12 @@ const USMap = () => {
   );
 
   const handlePinClick = useCallback(
-    (slug: string) => {
-      navigate(`/locations/${slug}/`);
+    (clinic: typeof CLINIC_LOCATIONS[number]) => {
+      if (clinic.externalUrl) {
+        window.open(clinic.externalUrl, '_blank', 'noopener,noreferrer');
+      } else {
+        navigate(`/locations/${clinic.slug}/`);
+      }
     },
     [navigate]
   );
