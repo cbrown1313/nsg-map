@@ -217,7 +217,7 @@ const USMap = () => {
             <g
               key={clinic.id}
               className="cursor-pointer"
-              onClick={() => handlePinClick(clinic.slug)}
+              onClick={() => handlePinClick(clinic)}
               onMouseEnter={() => setHoveredPin(clinic.id)}
               onMouseLeave={() => setHoveredPin(null)}
               role="button"
@@ -300,7 +300,7 @@ const USMap = () => {
             {CLINIC_LOCATIONS.map((clinic) => (
               <button
                 key={clinic.id}
-                onClick={() => handlePinClick(clinic.slug)}
+                onClick={() => handlePinClick(clinic)}
                 className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2.5 text-left text-sm text-card-foreground transition-colors hover:bg-accent"
               >
                 <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: 'hsl(230, 40%, 17%)' }} />
