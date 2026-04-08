@@ -62,12 +62,12 @@ export interface ClinicLocation {
 }
 
 export const CLINIC_LOCATIONS: ClinicLocation[] = [
-  { id: 'league-city', name: 'Houston – League City', city: 'League City', state: 'TX', slug: 'houston-league-city', externalUrl: 'https://neurocognitivespecialtygroup.com/location/houston-tx/', svgX: 498, svgY: 481 },
-  { id: 'missouri-city', name: 'Houston – Missouri City', city: 'Missouri City', state: 'TX', slug: 'houston-missouri-city', externalUrl: 'https://neurocognitivespecialtygroup.com/location/houston-tx/', svgX: 485, svgY: 476 },
+  { id: 'league-city', name: 'Houston – League City', city: 'League City', state: 'TX', slug: 'houston-league-city', svgX: 498, svgY: 481 },
+  { id: 'missouri-city', name: 'Houston – Missouri City', city: 'Missouri City', state: 'TX', slug: 'houston-missouri-city', svgX: 485, svgY: 476 },
   { id: 'plano', name: 'Dallas – Plano', city: 'Plano', state: 'TX', slug: 'dallas-plano', externalUrl: 'https://neurocognitivespecialtygroup.com/location/dallas-tx/', svgX: 473, svgY: 408 },
   { id: 'pensacola', name: 'Pensacola', city: 'Pensacola', state: 'FL', slug: 'pensacola', svgX: 646, svgY: 445 },
-  { id: 'slidell', name: 'New Orleans – Slidell', city: 'Slidell', state: 'LA', slug: 'new-orleans-slidell', svgX: 608, svgY: 454 },
-  { id: 'ridgeland', name: 'Jackson – Ridgeland', city: 'Ridgeland', state: 'MS', slug: 'jackson-ridgeland', externalUrl: 'https://neurocognitivespecialtygroup.com/location/jackson-ms/', svgX: 604, svgY: 407 },
+  { id: 'slidell', name: 'New Orleans – Slidell', city: 'Slidell', state: 'LA', slug: 'new-orleans-slidell', externalUrl: 'https://neurocognitivespecialtygroup.com/location/new-orleans-la/', svgX: 608, svgY: 454 },
+  { id: 'ridgeland', name: 'Jackson – Ridgeland', city: 'Ridgeland', state: 'MS', slug: 'jackson-ridgeland', svgX: 604, svgY: 407 },
   { id: 'alpharetta', name: 'Atlanta – Alpharetta', city: 'Alpharetta', state: 'GA', slug: 'atlanta-alpharetta', externalUrl: 'https://neurocognitivespecialtygroup.com/location/atlanta-ga/', svgX: 705, svgY: 378 },
   { id: 'fort-lauderdale', name: 'Fort Lauderdale', city: 'Fort Lauderdale', state: 'FL', slug: 'fort-lauderdale', svgX: 763, svgY: 512 },
 ];
