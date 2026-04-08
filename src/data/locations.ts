@@ -54,6 +54,8 @@ export interface ClinicLocation {
   city: string;
   state: string;
   slug: string;
+  /** If set, clicking this clinic navigates to an external URL instead of /locations/:slug/ */
+  externalUrl?: string;
   // SVG coordinates (approximate positions on 960x600 viewBox)
   svgX: number;
   svgY: number;
@@ -66,6 +68,6 @@ export const CLINIC_LOCATIONS: ClinicLocation[] = [
   { id: 'pensacola', name: 'Pensacola', city: 'Pensacola', state: 'FL', slug: 'pensacola', svgX: 646, svgY: 445 },
   { id: 'slidell', name: 'New Orleans – Slidell', city: 'Slidell', state: 'LA', slug: 'new-orleans-slidell', svgX: 608, svgY: 454 },
   { id: 'ridgeland', name: 'Jackson – Ridgeland', city: 'Ridgeland', state: 'MS', slug: 'jackson-ridgeland', svgX: 604, svgY: 407 },
-  { id: 'alpharetta', name: 'Atlanta – Alpharetta', city: 'Alpharetta', state: 'GA', slug: 'atlanta-alpharetta', svgX: 705, svgY: 378 },
+  { id: 'alpharetta', name: 'Atlanta – Alpharetta', city: 'Alpharetta', state: 'GA', slug: 'atlanta-alpharetta', externalUrl: 'https://neurocognitivespecialtygroup.com/location/atlanta-ga/', svgX: 705, svgY: 378 },
   { id: 'fort-lauderdale', name: 'Fort Lauderdale', city: 'Fort Lauderdale', state: 'FL', slug: 'fort-lauderdale', svgX: 763, svgY: 512 },
 ];
