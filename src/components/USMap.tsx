@@ -202,66 +202,81 @@ const USMap = () => {
           );
         })}
 
-        {CLINIC_LOCATIONS.map((clinic) => (
-          <g
-            key={clinic.id}
-            className="cursor-pointer"
-            onClick={() => handlePinClick(clinic.slug)}
-            onMouseEnter={() => setHoveredPin(clinic.id)}
-            onMouseLeave={() => setHoveredPin(null)}
-            role="button"
-            tabIndex={0}
-            aria-label={`${clinic.name} clinic`}
-          >
-            {/* Pin shadow */}
-            <circle
-              cx={clinic.svgX}
-              cy={clinic.svgY + 1}
-              r={hoveredPin === clinic.id ? 7 : 6}
-              fill="hsla(230, 40%, 17%, 0.3)"
-            />
-            {/* Pin circle */}
-            <circle
-              cx={clinic.svgX}
-              cy={clinic.svgY}
-              r={hoveredPin === clinic.id ? 6.5 : 5}
-              fill="hsl(230, 40%, 17%)"
-              stroke="hsl(0, 0%, 100%)"
-              strokeWidth="1.5"
-            />
-            {/* Pin inner dot */}
-            <circle
-              cx={clinic.svgX}
-              cy={clinic.svgY}
-              r={hoveredPin === clinic.id ? 2.5 : 2}
-              fill="hsl(0, 0%, 100%)"
-            />
-            {/* Hover label */}
-            {hoveredPin === clinic.id && (
-              <g>
-                <rect
-                  x={clinic.svgX + 10}
-                  y={clinic.svgY - 12}
-                  width={clinic.name.length * 6.5 + 12}
-                  height={20}
-                  rx="4"
-                  fill="hsl(230, 40%, 17%)"
-                  opacity="0.95"
-                />
-                <text
-                  x={clinic.svgX + 16}
-                  y={clinic.svgY + 2}
-                  fill="hsl(0, 0%, 100%)"
-                  fontSize="11"
-                  fontFamily="system-ui, sans-serif"
-                  fontWeight="500"
-                >
-                  {clinic.name}
-                </text>
-              </g>
-            )}
-          </g>
-        ))}
+        {CLINIC_LOCATIONS.map((clinic) => {
+          const baseR = isMobile ? 8 : 5;
+          const hoverR = isMobile ? 9.5 : 6.5;
+          const innerR = isMobile ? 3.5 : 2;
+          const innerHoverR = isMobile ? 4 : 2.5;
+          const isHovered = hoveredPin === clinic.id;
+
+          return (
+            <g
+              key={clinic.id}
+              className="cursor-pointer"
+              onClick={() => handlePinClick(clinic.slug)}
+              onMouseEnter={() => setHoveredPin(clinic.id)}
+              onMouseLeave={() => setHoveredPin(null)}
+              role="button"
+              tabIndex={0}
+              aria-label={`${clinic.name} clinic`}
+            >
+              {/* Invisible hit area for easier tapping */}
+              <circle
+                cx={clinic.svgX}
+                cy={clinic.svgY}
+                r={isMobile ? 18 : 12}
+                fill="transparent"
+              />
+              {/* Pin shadow */}
+              <circle
+                cx={clinic.svgX}
+                cy={clinic.svgY + 1}
+                r={isHovered ? hoverR + 1 : baseR + 1}
+                fill="hsla(230, 40%, 17%, 0.3)"
+              />
+              {/* Pin circle */}
+              <circle
+                cx={clinic.svgX}
+                cy={clinic.svgY}
+                r={isHovered ? hoverR : baseR}
+                fill="hsl(230, 40%, 17%)"
+                stroke="hsl(0, 0%, 100%)"
+                strokeWidth="1.5"
+              />
+              {/* Pin inner dot */}
+              <circle
+                cx={clinic.svgX}
+                cy={clinic.svgY}
+                r={isHovered ? innerHoverR : innerR}
+                fill="hsl(0, 0%, 100%)"
+              />
+              {/* Hover label */}
+              {isHovered && (
+                <g>
+                  <rect
+                    x={clinic.svgX + 10}
+                    y={clinic.svgY - 12}
+                    width={clinic.name.length * 6.5 + 12}
+                    height={20}
+                    rx="4"
+                    fill="hsl(230, 40%, 17%)"
+                    opacity="0.95"
+                  />
+                  <text
+                    x={clinic.svgX + 16}
+                    y={clinic.svgY + 2}
+                    fill="hsl(0, 0%, 100%)"
+                    fontSize="11"
+                    fontFamily="system-ui, sans-serif"
+                    fontWeight="500"
+                  >
+                    {clinic.name}
+                  </text>
+                </g>
+              )}
+            </g>
+          );
+        })}
       </svg>
 
       {/* PSYPACT tooltip */}
@@ -271,6 +286,26 @@ const USMap = () => {
           position={tooltip.position}
           onClose={() => setTooltip(null)}
         />
+      )}
+
+      {/* Mobile clinic list */}
+      {isMobile && (
+        <div className="mt-4 space-y-2">
+          <h3 className="text-sm font-semibold text-foreground">Clinic Locations</h3>
+          <div className="grid gap-1.5">
+            {CLINIC_LOCATIONS.map((clinic) => (
+              <button
+                key={clinic.id}
+                onClick={() => handlePinClick(clinic.slug)}
+                className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2.5 text-left text-sm text-card-foreground transition-colors hover:bg-accent"
+              >
+                <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: 'hsl(230, 40%, 17%)' }} />
+                <span>{clinic.name}</span>
+                <span className="ml-auto text-xs text-muted-foreground">{clinic.city}, {clinic.state}</span>
+              </button>
+            ))}
+          </div>
+        </div>
       )}
     </div>
   );
