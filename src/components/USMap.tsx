@@ -1,25 +1,15 @@
 import { useState, useCallback, useRef } from 'react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { US_STATES } from '@/data/us-states';
-import {
-  getStateTier,
-  CLINIC_LOCATIONS,
-  LICENSE_ONLY_STATES,
-  STATE_NAMES,
-  type StateTier,
-} from '@/data/locations';
+import { STATE_NAMES, type StateTier } from '@/data/locations';
+import { useClinicLocations, useStateLookups } from '@/hooks/useMapData';
 import MapTooltip from './MapTooltip';
 
-// Approximate center coordinates for labeled states on 960x600 viewBox
-// Label positions — calculated from SVG path bounding-box centers
-// Small NE states use offset labels with leader lines
 const STATE_LABEL_COORDS: Record<string, { x: number; y: number; anchor?: { x: number; y: number } }> = {
-  // Licensed states
   TX: { x: 409, y: 448 }, FL: { x: 723, y: 480 }, LA: { x: 572, y: 449 },
   MS: { x: 601, y: 412 }, GA: { x: 719, y: 400 },
   KS: { x: 444, y: 290 }, WA: { x: 125, y: 50 }, OR: { x: 105, y: 118 },
   HI: { x: 290, y: 546 },
-  // PSYPACT states — large enough for inline labels
   AL: { x: 660, y: 409 }, AZ: { x: 201, y: 364 }, AR: { x: 551, y: 370 },
   CO: { x: 322, y: 271 }, ID: { x: 200, y: 112 }, IL: { x: 592, y: 259 },
   IN: { x: 646, y: 255 }, KY: { x: 662, y: 298 }, ME: { x: 895, y: 88 },
@@ -30,7 +20,6 @@ const STATE_LABEL_COORDS: Record<string, { x: number; y: number; anchor?: { x: n
   SD: { x: 417, y: 164 }, TN: { x: 660, y: 338 }, UT: { x: 224, y: 248 },
   VA: { x: 771, y: 279 }, WI: { x: 576, y: 152 }, WY: { x: 300, y: 181 },
   WV: { x: 753, y: 261 },
-  // Small states — offset labels with leader lines
   CT: { x: 920, y: 195, anchor: { x: 859, y: 179 } },
   RI: { x: 920, y: 208, anchor: { x: 878, y: 170 } },
   NJ: { x: 920, y: 230, anchor: { x: 836, y: 216 } },
@@ -65,14 +54,16 @@ const USMap = () => {
     position: { x: number; y: number };
   } | null>(null);
 
+  const { data: clinicLocations = [] } = useClinicLocations();
+  const { getStateTier, isLicenseOnly } = useStateLookups();
+
   const handleStateClick = useCallback(
     (stateCode: string, e: React.MouseEvent) => {
       const tier = getStateTier(stateCode);
-
       if (tier === 'none' || tier === 'excluded') return;
 
       if (tier === 'licensed') {
-        if (LICENSE_ONLY_STATES.has(stateCode)) {
+        if (isLicenseOnly(stateCode)) {
           window.open('https://neurocognitivespecialtygroup.com/our-providers/', '_blank', 'noopener,noreferrer');
         }
         return;
@@ -83,19 +74,16 @@ const USMap = () => {
         if (rect) {
           setTooltip({
             stateCode,
-            position: {
-              x: e.clientX - rect.left,
-              y: e.clientY - rect.top,
-            },
+            position: { x: e.clientX - rect.left, y: e.clientY - rect.top },
           });
         }
       }
     },
-    []
+    [getStateTier, isLicenseOnly]
   );
 
   const handlePinClick = useCallback(
-    (clinic: typeof CLINIC_LOCATIONS[number]) => {
+    (clinic: typeof clinicLocations[number]) => {
       if (clinic.externalUrl) {
         window.open(clinic.externalUrl, '_blank', 'noopener,noreferrer');
       }
@@ -103,8 +91,7 @@ const USMap = () => {
     []
   );
 
-  const isInteractive = (tier: StateTier) =>
-    tier === 'licensed' || tier === 'psypact';
+  const isInteractive = (tier: StateTier) => tier === 'licensed' || tier === 'psypact';
 
   return (
     <div className="relative w-full">
@@ -115,14 +102,11 @@ const USMap = () => {
         role="img"
         aria-label="Interactive map of NSG service coverage across the United States"
       >
-        {/* State paths */}
         {US_STATES.map((state) => {
           const tier = getStateTier(state.id);
           const interactive = isInteractive(tier);
           const isHovered = hoveredState === state.id;
-          const fill = isHovered && STATE_HOVER[tier]
-            ? STATE_HOVER[tier]
-            : STATE_FILL[tier];
+          const fill = isHovered && STATE_HOVER[tier] ? STATE_HOVER[tier] : STATE_FILL[tier];
 
           return (
             <path
@@ -139,14 +123,11 @@ const USMap = () => {
               role={interactive ? 'button' : undefined}
               tabIndex={interactive ? 0 : undefined}
             >
-              {interactive && (
-                <title>{STATE_NAMES[state.id]}</title>
-              )}
+              {interactive && <title>{STATE_NAMES[state.id]}</title>}
             </path>
           );
         })}
 
-        {/* State abbreviation labels */}
         {Object.entries(STATE_LABEL_COORDS).map(([code, pos]) => {
           const tier = getStateTier(code);
           if (tier === 'none' || tier === 'excluded') return null;
@@ -154,53 +135,23 @@ const USMap = () => {
           const textAnchor = hasLeader ? 'start' : 'middle';
           return (
             <g key={`label-${code}`}>
-              {/* Leader line for offset labels */}
               {hasLeader && pos.anchor && (
-                <line
-                  x1={pos.anchor.x}
-                  y1={pos.anchor.y}
-                  x2={pos.x - 2}
-                  y2={pos.y}
-                  stroke="hsl(0, 0%, 55%)"
-                  strokeWidth="0.75"
-                  className="pointer-events-none"
-                />
+                <line x1={pos.anchor.x} y1={pos.anchor.y} x2={pos.x - 2} y2={pos.y}
+                  stroke="hsl(0, 0%, 55%)" strokeWidth="0.75" className="pointer-events-none" />
               )}
-              {/* Text shadow/outline for readability */}
-              <text
-                x={pos.x}
-                y={pos.y}
-                textAnchor={textAnchor}
-                dominantBaseline="central"
-                fill="none"
-                stroke={hasLeader ? 'hsla(0, 0%, 100%, 0.8)' : 'hsla(0, 0%, 0%, 0.4)'}
-                strokeWidth="3"
-                fontSize="10"
-                fontWeight="600"
-                fontFamily="system-ui, sans-serif"
-                className="pointer-events-none select-none"
-                paintOrder="stroke"
-              >
-                {code}
-              </text>
-              <text
-                x={pos.x}
-                y={pos.y}
-                textAnchor={textAnchor}
-                dominantBaseline="central"
-                fill={hasLeader ? 'hsl(0, 0%, 30%)' : 'hsl(0, 0%, 100%)'}
-                fontSize="10"
-                fontWeight="600"
-                fontFamily="system-ui, sans-serif"
-                className="pointer-events-none select-none"
-              >
-                {code}
-              </text>
+              <text x={pos.x} y={pos.y} textAnchor={textAnchor} dominantBaseline="central"
+                fill="none" stroke={hasLeader ? 'hsla(0, 0%, 100%, 0.8)' : 'hsla(0, 0%, 0%, 0.4)'}
+                strokeWidth="3" fontSize="10" fontWeight="600" fontFamily="system-ui, sans-serif"
+                className="pointer-events-none select-none" paintOrder="stroke">{code}</text>
+              <text x={pos.x} y={pos.y} textAnchor={textAnchor} dominantBaseline="central"
+                fill={hasLeader ? 'hsl(0, 0%, 30%)' : 'hsl(0, 0%, 100%)'} fontSize="10"
+                fontWeight="600" fontFamily="system-ui, sans-serif"
+                className="pointer-events-none select-none">{code}</text>
             </g>
           );
         })}
 
-        {CLINIC_LOCATIONS.map((clinic) => {
+        {clinicLocations.map((clinic) => {
           const baseR = isMobile ? 8 : 5;
           const hoverR = isMobile ? 9.5 : 6.5;
           const innerR = isMobile ? 3.5 : 2;
@@ -208,66 +159,25 @@ const USMap = () => {
           const isHovered = hoveredPin === clinic.id;
 
           return (
-            <g
-              key={clinic.id}
-              className="cursor-pointer"
+            <g key={clinic.id} className="cursor-pointer"
               onClick={() => handlePinClick(clinic)}
               onMouseEnter={() => setHoveredPin(clinic.id)}
               onMouseLeave={() => setHoveredPin(null)}
-              role="button"
-              tabIndex={0}
-              aria-label={`${clinic.name} clinic`}
-            >
-              {/* Invisible hit area for easier tapping */}
-              <circle
-                cx={clinic.svgX}
-                cy={clinic.svgY}
-                r={isMobile ? 18 : 12}
-                fill="transparent"
-              />
-              {/* Pin shadow */}
-              <circle
-                cx={clinic.svgX}
-                cy={clinic.svgY + 1}
-                r={isHovered ? hoverR + 1 : baseR + 1}
-                fill="hsla(230, 40%, 17%, 0.3)"
-              />
-              {/* Pin circle */}
-              <circle
-                cx={clinic.svgX}
-                cy={clinic.svgY}
-                r={isHovered ? hoverR : baseR}
-                fill="hsl(230, 40%, 17%)"
-                stroke="hsl(0, 0%, 100%)"
-                strokeWidth="1.5"
-              />
-              {/* Pin inner dot */}
-              <circle
-                cx={clinic.svgX}
-                cy={clinic.svgY}
-                r={isHovered ? innerHoverR : innerR}
-                fill="hsl(0, 0%, 100%)"
-              />
-              {/* Hover label */}
+              role="button" tabIndex={0} aria-label={`${clinic.name} clinic`}>
+              <circle cx={clinic.svgX} cy={clinic.svgY} r={isMobile ? 18 : 12} fill="transparent" />
+              <circle cx={clinic.svgX} cy={clinic.svgY + 1} r={isHovered ? hoverR + 1 : baseR + 1}
+                fill="hsla(230, 40%, 17%, 0.3)" />
+              <circle cx={clinic.svgX} cy={clinic.svgY} r={isHovered ? hoverR : baseR}
+                fill="hsl(230, 40%, 17%)" stroke="hsl(0, 0%, 100%)" strokeWidth="1.5" />
+              <circle cx={clinic.svgX} cy={clinic.svgY} r={isHovered ? innerHoverR : innerR}
+                fill="hsl(0, 0%, 100%)" />
               {isHovered && (
                 <g>
-                  <rect
-                    x={clinic.svgX + 10}
-                    y={clinic.svgY - 12}
-                    width={clinic.name.length * 6.5 + 12}
-                    height={20}
-                    rx="4"
-                    fill="hsl(230, 40%, 17%)"
-                    opacity="0.95"
-                  />
-                  <text
-                    x={clinic.svgX + 16}
-                    y={clinic.svgY + 2}
-                    fill="hsl(0, 0%, 100%)"
-                    fontSize="11"
-                    fontFamily="system-ui, sans-serif"
-                    fontWeight="500"
-                  >
+                  <rect x={clinic.svgX + 10} y={clinic.svgY - 12}
+                    width={clinic.name.length * 6.5 + 12} height={20} rx="4"
+                    fill="hsl(230, 40%, 17%)" opacity="0.95" />
+                  <text x={clinic.svgX + 16} y={clinic.svgY + 2} fill="hsl(0, 0%, 100%)"
+                    fontSize="11" fontFamily="system-ui, sans-serif" fontWeight="500">
                     {clinic.name}
                   </text>
                 </g>
@@ -277,27 +187,20 @@ const USMap = () => {
         })}
       </svg>
 
-      {/* PSYPACT tooltip */}
       {tooltip && (
-        <MapTooltip
-          stateCode={tooltip.stateCode}
-          position={tooltip.position}
-          onClose={() => setTooltip(null)}
-        />
+        <MapTooltip stateCode={tooltip.stateCode} position={tooltip.position}
+          onClose={() => setTooltip(null)} />
       )}
 
-      {/* Mobile clinic list */}
       {isMobile && (
         <div className="mt-4 space-y-2">
           <h3 className="text-sm font-semibold text-foreground">Clinic Locations</h3>
           <div className="grid gap-1.5">
-            {CLINIC_LOCATIONS.map((clinic) => (
-              <button
-                key={clinic.id}
-                onClick={() => handlePinClick(clinic)}
-                className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2.5 text-left text-sm text-card-foreground transition-colors hover:bg-accent"
-              >
-                <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full" style={{ backgroundColor: 'hsl(230, 40%, 17%)' }} />
+            {clinicLocations.map((clinic) => (
+              <button key={clinic.id} onClick={() => handlePinClick(clinic)}
+                className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-2.5 text-left text-sm text-card-foreground transition-colors hover:bg-accent">
+                <span className="inline-block h-2.5 w-2.5 shrink-0 rounded-full"
+                  style={{ backgroundColor: 'hsl(230, 40%, 17%)' }} />
                 <span>{clinic.name}</span>
                 <span className="ml-auto text-xs text-muted-foreground">{clinic.city}, {clinic.state}</span>
               </button>
