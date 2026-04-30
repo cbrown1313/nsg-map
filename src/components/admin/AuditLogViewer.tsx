@@ -183,6 +183,7 @@ const AuditLogViewer = () => {
               <SelectItem value="all">All tables</SelectItem>
               <SelectItem value="clinic_locations">Clinic locations</SelectItem>
               <SelectItem value="state_configs">State configs</SelectItem>
+              <SelectItem value="unauthorized_access">Access denials</SelectItem>
             </SelectContent>
           </Select>
           <Select value={actionFilter} onValueChange={resetAndSet(setActionFilter)}>
@@ -194,6 +195,7 @@ const AuditLogViewer = () => {
               <SelectItem value="INSERT">Added</SelectItem>
               <SelectItem value="UPDATE">Edited</SelectItem>
               <SelectItem value="DELETE">Removed</SelectItem>
+              <SelectItem value="DENIED">Denied</SelectItem>
             </SelectContent>
           </Select>
           <Select
