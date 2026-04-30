@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -10,9 +10,11 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 const AdminLogin = () => {
   const { signIn, user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const redirectReason = (location.state as { reason?: string } | null)?.reason;
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
+  const [error, setError] = useState(redirectReason ?? '');
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [mode, setMode] = useState<'login' | 'signup'>('login');
