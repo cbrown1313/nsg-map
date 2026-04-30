@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,10 +17,11 @@ const AdminLogin = () => {
   const [submitting, setSubmitting] = useState(false);
   const [mode, setMode] = useState<'login' | 'signup'>('login');
 
-  if (!loading && isAdmin) {
-    navigate('/admin/dashboard', { replace: true });
-    return null;
-  }
+  useEffect(() => {
+    if (!loading && isAdmin) {
+      navigate('/admin/dashboard', { replace: true });
+    }
+  }, [loading, isAdmin, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,9 +47,7 @@ const AdminLogin = () => {
       setSubmitting(false);
       return;
     }
-    setTimeout(() => {
-      navigate('/admin/dashboard', { replace: true });
-    }, 500);
+    // Navigation happens via the useEffect once isAdmin resolves
   };
 
   return (
