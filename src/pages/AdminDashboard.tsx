@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LocationsEditor from '@/components/admin/LocationsEditor';
 import StatesEditor from '@/components/admin/StatesEditor';
+import AuditLogViewer from '@/components/admin/AuditLogViewer';
 import { LogOut } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -46,12 +47,16 @@ const AdminDashboard = () => {
           <TabsList>
             <TabsTrigger value="locations">Clinic Locations</TabsTrigger>
             <TabsTrigger value="states">State Configuration</TabsTrigger>
+            <TabsTrigger value="audit">Audit Log</TabsTrigger>
           </TabsList>
           <TabsContent value="locations" className="mt-4">
             <LocationsEditor />
           </TabsContent>
           <TabsContent value="states" className="mt-4">
             <StatesEditor />
+          </TabsContent>
+          <TabsContent value="audit" className="mt-4">
+            <AuditLogViewer />
           </TabsContent>
         </Tabs>
       </main>
