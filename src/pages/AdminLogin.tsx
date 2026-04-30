@@ -8,7 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 const AdminLogin = () => {
-  const { signIn, isAdmin, loading } = useAuth();
+  const { signIn, user, isAdmin, loading } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -16,12 +16,20 @@ const AdminLogin = () => {
   const [message, setMessage] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const [mode, setMode] = useState<'login' | 'signup'>('login');
+  const [attempted, setAttempted] = useState(false);
 
   useEffect(() => {
-    if (!loading && isAdmin) {
+    if (loading) return;
+    if (isAdmin) {
       navigate('/admin/dashboard', { replace: true });
+      return;
     }
-  }, [loading, isAdmin, navigate]);
+    // Signed in after a login attempt, but no admin role assigned
+    if (attempted && user && !isAdmin) {
+      setError("You're signed in, but this account doesn't have admin access. Ask an existing admin to assign the admin role to your account.");
+      setSubmitting(false);
+    }
+  }, [loading, isAdmin, user, attempted, navigate]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,7 +42,7 @@ const AdminLogin = () => {
       if (signUpError) {
         setError(signUpError.message);
       } else {
-        setMessage('Account created! Ask an admin to assign your role, then log in.');
+        setMessage('Account created. Ask an admin to assign your role, then log in.');
         setMode('login');
       }
       setSubmitting(false);
@@ -43,12 +51,23 @@ const AdminLogin = () => {
 
     const { error: authError } = await signIn(email, password);
     if (authError) {
-      setError(authError.message);
+      setError(authError.message || 'Sign in failed. Check your email and password.');
       setSubmitting(false);
       return;
     }
-    // Navigation happens via the useEffect once isAdmin resolves
+
+    // Confirm a session was actually established
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      setError('Sign in did not create a session. Please try again.');
+      setSubmitting(false);
+      return;
+    }
+
+    setAttempted(true);
+    // useEffect handles redirect or shows the no-admin-access message
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
