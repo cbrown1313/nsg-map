@@ -11,17 +11,28 @@ interface RequireAdminProps {
 const RequireAdmin = ({ children }: RequireAdminProps) => {
   const { user, isAdmin, loading } = useAuth();
   const location = useLocation();
+  const loggedRef = useRef<string | null>(null);
 
   const unauthorized = !loading && (!user || !isAdmin);
-  const reason = !user
+  const reasonCode = !user ? 'Not signed in' : 'Signed in but missing admin role';
+  const friendlyReason = !user
     ? 'Please sign in to access the admin dashboard.'
     : "You're signed in, but this account doesn't have admin access.";
 
   useEffect(() => {
-    if (unauthorized) {
-      toast.error(reason);
-    }
-  }, [unauthorized, reason]);
+    if (!unauthorized) return;
+    const key = `${user?.id ?? 'anon'}:${location.pathname}`;
+    if (loggedRef.current === key) return;
+    loggedRef.current = key;
+
+    toast.error(friendlyReason);
+    supabase.rpc('log_unauthorized_access', {
+      _reason: reasonCode,
+      _path: location.pathname,
+    }).then(({ error }) => {
+      if (error) console.warn('Failed to log unauthorized access:', error.message);
+    });
+  }, [unauthorized, friendlyReason, reasonCode, user?.id, location.pathname]);
 
   if (loading) {
     return (
@@ -36,7 +47,7 @@ const RequireAdmin = ({ children }: RequireAdminProps) => {
       <Navigate
         to="/admin"
         replace
-        state={{ from: location.pathname, reason }}
+        state={{ from: location.pathname, reason: friendlyReason }}
       />
     );
   }
