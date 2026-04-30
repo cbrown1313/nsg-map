@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, keepPreviousData } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import {
@@ -9,9 +9,9 @@ import {
   Table, TableBody, TableCell, TableHead, TableHeader, TableRow,
 } from '@/components/ui/table';
 import {
-  Collapsible, CollapsibleContent, CollapsibleTrigger,
+  Collapsible, CollapsibleContent,
 } from '@/components/ui/collapsible';
-import { ChevronRight, RefreshCw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 
 type AuditEntry = {
   id: string;
@@ -42,6 +42,8 @@ const ACTION_TONE: Record<AuditEntry['action'], string> = {
   DELETE: 'text-destructive',
 };
 
+const PAGE_SIZE_OPTIONS = [25, 50, 100];
+
 const formatTimestamp = (iso: string) => {
   const d = new Date(iso);
   return d.toLocaleString(undefined, {
@@ -50,7 +52,6 @@ const formatTimestamp = (iso: string) => {
   });
 };
 
-/** Returns the keys that changed between old and new, with both values. */
 const diffFields = (
   oldData: Record<string, unknown> | null,
   newData: Record<string, unknown> | null,
@@ -59,7 +60,6 @@ const diffFields = (
     ...Object.keys(oldData ?? {}),
     ...Object.keys(newData ?? {}),
   ]);
-  // Skip noisy timestamp / id columns
   const skip = new Set(['created_at', 'updated_at']);
   const changes: { field: string; before: unknown; after: unknown }[] = [];
   keys.forEach((k) => {
@@ -80,39 +80,85 @@ const renderValue = (v: unknown) => {
   return String(v);
 };
 
+type PageResult = { rows: AuditEntry[]; count: number };
+
 const AuditLogViewer = () => {
   const [tableFilter, setTableFilter] = useState<string>('all');
   const [actionFilter, setActionFilter] = useState<string>('all');
+  const [pageSize, setPageSize] = useState<number>(25);
+  const [page, setPage] = useState<number>(0);
 
-  const { data: entries = [], isLoading, refetch, isFetching } = useQuery({
-    queryKey: ['audit_log'],
-    queryFn: async (): Promise<AuditEntry[]> => {
-      // audit_log isn't in the generated types yet; cast through unknown.
-      const { data, error } = await (supabase as unknown as {
+  const resetAndSet = <T,>(setter: (v: T) => void) => (v: T) => {
+    setter(v);
+    setPage(0);
+  };
+
+  const { data, isLoading, refetch, isFetching } = useQuery<PageResult>({
+    queryKey: ['audit_log', tableFilter, actionFilter, page, pageSize],
+    placeholderData: keepPreviousData,
+    queryFn: async () => {
+      const from = page * pageSize;
+      const to = from + pageSize - 1;
+
+      const client = supabase as unknown as {
         from: (t: string) => {
-          select: (s: string) => {
+          select: (s: string, opts?: { count?: 'exact' | 'planned' | 'estimated' }) => {
             order: (c: string, o: { ascending: boolean }) => {
-              limit: (n: number) => Promise<{ data: AuditEntry[] | null; error: Error | null }>;
+              range: (f: number, t: number) => Promise<{
+                data: AuditEntry[] | null;
+                error: Error | null;
+                count: number | null;
+              }>;
+              eq: (col: string, val: string) => {
+                order: (c: string, o: { ascending: boolean }) => {
+                  range: (f: number, t: number) => Promise<{
+                    data: AuditEntry[] | null;
+                    error: Error | null;
+                    count: number | null;
+                  }>;
+                };
+              };
+            };
+            eq: (col: string, val: string) => {
+              eq: (col: string, val: string) => {
+                order: (c: string, o: { ascending: boolean }) => {
+                  range: (f: number, t: number) => Promise<{
+                    data: AuditEntry[] | null;
+                    error: Error | null;
+                    count: number | null;
+                  }>;
+                };
+              };
+              order: (c: string, o: { ascending: boolean }) => {
+                range: (f: number, t: number) => Promise<{
+                  data: AuditEntry[] | null;
+                  error: Error | null;
+                  count: number | null;
+                }>;
+              };
             };
           };
         };
-      })
-        .from('audit_log')
-        .select('*')
+      };
+
+      // Build the query dynamically with filters applied server-side.
+      let query: any = client.from('audit_log').select('*', { count: 'exact' });
+      if (tableFilter !== 'all') query = query.eq('table_name', tableFilter);
+      if (actionFilter !== 'all') query = query.eq('action', actionFilter);
+      const { data: rows, error, count } = await query
         .order('changed_at', { ascending: false })
-        .limit(200);
+        .range(from, to);
+
       if (error) throw error;
-      return data ?? [];
+      return { rows: rows ?? [], count: count ?? 0 };
     },
   });
 
-  const filtered = useMemo(() => {
-    return entries.filter((e) => {
-      if (tableFilter !== 'all' && e.table_name !== tableFilter) return false;
-      if (actionFilter !== 'all' && e.action !== actionFilter) return false;
-      return true;
-    });
-  }, [entries, tableFilter, actionFilter]);
+  const rows = data?.rows ?? [];
+  const totalCount = data?.count ?? 0;
+  const totalPages = Math.max(1, Math.ceil(totalCount / pageSize));
+  const showingFrom = totalCount === 0 ? 0 : page * pageSize + 1;
+  const showingTo = Math.min(totalCount, page * pageSize + rows.length);
 
   if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
 
@@ -122,11 +168,11 @@ const AuditLogViewer = () => {
         <div>
           <h2 className="text-lg font-semibold">Audit Log</h2>
           <p className="text-sm text-muted-foreground">
-            Most recent 200 changes to clinic locations and state configurations.
+            All recorded changes to clinic locations and state configurations.
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Select value={tableFilter} onValueChange={setTableFilter}>
+          <Select value={tableFilter} onValueChange={resetAndSet(setTableFilter)}>
             <SelectTrigger className="w-44">
               <SelectValue placeholder="All tables" />
             </SelectTrigger>
@@ -136,7 +182,7 @@ const AuditLogViewer = () => {
               <SelectItem value="state_configs">State configs</SelectItem>
             </SelectContent>
           </Select>
-          <Select value={actionFilter} onValueChange={setActionFilter}>
+          <Select value={actionFilter} onValueChange={resetAndSet(setActionFilter)}>
             <SelectTrigger className="w-36">
               <SelectValue placeholder="All actions" />
             </SelectTrigger>
@@ -145,6 +191,19 @@ const AuditLogViewer = () => {
               <SelectItem value="INSERT">Added</SelectItem>
               <SelectItem value="UPDATE">Edited</SelectItem>
               <SelectItem value="DELETE">Removed</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={String(pageSize)}
+            onValueChange={(v) => resetAndSet(setPageSize)(Number(v))}
+          >
+            <SelectTrigger className="w-28">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {PAGE_SIZE_OPTIONS.map((n) => (
+                <SelectItem key={n} value={String(n)}>{n} / page</SelectItem>
+              ))}
             </SelectContent>
           </Select>
           <Button
@@ -159,28 +218,57 @@ const AuditLogViewer = () => {
         </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {rows.length === 0 ? (
         <p className="text-sm text-muted-foreground py-8 text-center">
           No audit entries match these filters yet.
         </p>
       ) : (
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="w-8"></TableHead>
-              <TableHead>When</TableHead>
-              <TableHead>Who</TableHead>
-              <TableHead>Action</TableHead>
-              <TableHead>Table</TableHead>
-              <TableHead>Record</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {filtered.map((entry) => (
-              <AuditRow key={entry.id} entry={entry} />
-            ))}
-          </TableBody>
-        </Table>
+        <>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="w-8"></TableHead>
+                <TableHead>When</TableHead>
+                <TableHead>Who</TableHead>
+                <TableHead>Action</TableHead>
+                <TableHead>Table</TableHead>
+                <TableHead>Record</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {rows.map((entry) => (
+                <AuditRow key={entry.id} entry={entry} />
+              ))}
+            </TableBody>
+          </Table>
+
+          <div className="flex items-center justify-between pt-2">
+            <p className="text-sm text-muted-foreground">
+              Showing {showingFrom}–{showingTo} of {totalCount}
+            </p>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0 || isFetching}
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" /> Previous
+              </Button>
+              <span className="text-sm tabular-nums">
+                Page {page + 1} of {totalPages}
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1 || isFetching}
+              >
+                Next <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            </div>
+          </div>
+        </>
       )}
     </div>
   );
@@ -188,7 +276,10 @@ const AuditLogViewer = () => {
 
 const AuditRow = ({ entry }: { entry: AuditEntry }) => {
   const [open, setOpen] = useState(false);
-  const changes = diffFields(entry.old_data, entry.new_data);
+  const changes = useMemo(
+    () => diffFields(entry.old_data, entry.new_data),
+    [entry.old_data, entry.new_data],
+  );
 
   return (
     <>
@@ -256,7 +347,6 @@ const AuditDetails = ({
     );
   }
 
-  // UPDATE — show field-level diff
   if (changes.length === 0) {
     return <p className="py-2 text-sm text-muted-foreground">No tracked field changes.</p>;
   }
