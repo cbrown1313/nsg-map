@@ -16,7 +16,7 @@ import { ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 type AuditEntry = {
   id: string;
   table_name: string;
-  action: 'INSERT' | 'UPDATE' | 'DELETE';
+  action: 'INSERT' | 'UPDATE' | 'DELETE' | 'DENIED';
   record_id: string;
   old_data: Record<string, unknown> | null;
   new_data: Record<string, unknown> | null;
@@ -28,18 +28,21 @@ type AuditEntry = {
 const TABLE_LABEL: Record<string, string> = {
   clinic_locations: 'Clinic location',
   state_configs: 'State config',
+  unauthorized_access: 'Access denied',
 };
 
 const ACTION_LABEL: Record<AuditEntry['action'], string> = {
   INSERT: 'Added',
   UPDATE: 'Edited',
   DELETE: 'Removed',
+  DENIED: 'Denied',
 };
 
 const ACTION_TONE: Record<AuditEntry['action'], string> = {
   INSERT: 'text-emerald-600',
   UPDATE: 'text-amber-600',
   DELETE: 'text-destructive',
+  DENIED: 'text-destructive',
 };
 
 const PAGE_SIZE_OPTIONS = [25, 50, 100];
@@ -180,6 +183,7 @@ const AuditLogViewer = () => {
               <SelectItem value="all">All tables</SelectItem>
               <SelectItem value="clinic_locations">Clinic locations</SelectItem>
               <SelectItem value="state_configs">State configs</SelectItem>
+              <SelectItem value="unauthorized_access">Access denials</SelectItem>
             </SelectContent>
           </Select>
           <Select value={actionFilter} onValueChange={resetAndSet(setActionFilter)}>
@@ -191,6 +195,7 @@ const AuditLogViewer = () => {
               <SelectItem value="INSERT">Added</SelectItem>
               <SelectItem value="UPDATE">Edited</SelectItem>
               <SelectItem value="DELETE">Removed</SelectItem>
+              <SelectItem value="DENIED">Denied</SelectItem>
             </SelectContent>
           </Select>
           <Select

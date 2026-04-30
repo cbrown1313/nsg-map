@@ -143,6 +143,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      log_unauthorized_access: {
+        Args: { _path: string; _reason: string }
+        Returns: undefined
+      }
     }
     Enums: {
       app_role: "admin" | "user"
