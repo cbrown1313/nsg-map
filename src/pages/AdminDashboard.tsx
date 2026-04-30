@@ -12,6 +12,11 @@ const AdminDashboard = () => {
   const { user, isAdmin, loading, signOut } = useAuth();
   const navigate = useNavigate();
 
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/admin', { replace: true });
+  };
+
   useEffect(() => {
     if (!loading && (!user || !isAdmin)) {
       navigate('/admin', { replace: true });
@@ -35,8 +40,8 @@ const AdminDashboard = () => {
           <h1 className="text-lg font-semibold text-foreground">NSG Map Admin</h1>
           <div className="flex items-center gap-3">
             <span className="text-sm text-muted-foreground">{user.email}</span>
-            <Button variant="ghost" size="sm" onClick={signOut}>
-              <LogOut className="h-4 w-4 mr-1" /> Sign Out
+            <Button variant="outline" size="sm" onClick={handleSignOut}>
+              <LogOut className="h-4 w-4 mr-1" /> Log out
             </Button>
           </div>
         </div>
