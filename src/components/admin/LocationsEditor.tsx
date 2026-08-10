@@ -144,8 +144,14 @@ const LocationsEditor = () => {
                 <div><Label>State</Label><Input value={form.state} onChange={(e) => set('state', e.target.value.toUpperCase())} maxLength={2} required /></div>
                 <div><Label>Slug</Label><Input value={form.slug} onChange={(e) => set('slug', e.target.value)} required /></div>
                 <div><Label>External URL</Label><Input value={form.external_url ?? ''} onChange={(e) => set('external_url', e.target.value)} /></div>
-                <div><Label>SVG X</Label><Input type="number" value={form.svg_x} onChange={(e) => set('svg_x', Number(e.target.value))} required /></div>
-                <div><Label>SVG Y</Label><Input type="number" value={form.svg_y} onChange={(e) => set('svg_y', Number(e.target.value))} required /></div>
+                <div><Label>Latitude</Label><Input type="number" step="any" value={form.latitude ?? ''} onChange={(e) => set('latitude', e.target.value === '' ? null : Number(e.target.value))} required /></div>
+                <div><Label>Longitude</Label><Input type="number" step="any" value={form.longitude ?? ''} onChange={(e) => set('longitude', e.target.value === '' ? null : Number(e.target.value))} required /></div>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Map position is calculated automatically from the coordinates: X {preview.svg_x}, Y {preview.svg_y}
+              </p>
+              <div className="hidden">
+
               </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={closeDialog}>Cancel</Button>
