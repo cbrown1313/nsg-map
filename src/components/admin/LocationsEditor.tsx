@@ -116,8 +116,11 @@ const LocationsEditor = () => {
     upsert.mutate(form);
   };
 
-  const set = (field: keyof typeof form, value: string | number) =>
+  const set = (field: keyof typeof form, value: string | number | null) =>
     setForm((f) => ({ ...f, [field]: value }));
+
+  const preview = withProjected(form);
+
 
   if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
 
