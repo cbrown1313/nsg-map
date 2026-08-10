@@ -150,9 +150,6 @@ const LocationsEditor = () => {
               <p className="text-xs text-muted-foreground">
                 Map position is calculated automatically from the coordinates: X {preview.svg_x}, Y {preview.svg_y}
               </p>
-              <div className="hidden">
-
-              </div>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={closeDialog}>Cancel</Button>
                 <Button type="submit" disabled={upsert.isPending}>{editingId ? 'Save' : 'Add'}</Button>
