@@ -91,10 +91,13 @@ const LocationsEditor = () => {
     setEditingId(loc.id);
     setForm({
       id: loc.id, name: loc.name, city: loc.city, state: loc.state, slug: loc.slug,
-      external_url: loc.external_url ?? '', svg_x: loc.svg_x, svg_y: loc.svg_y,
+      external_url: loc.external_url ?? '',
+      latitude: loc.latitude, longitude: loc.longitude,
+      svg_x: loc.svg_x, svg_y: loc.svg_y,
     });
     setDialogOpen(true);
   };
+
 
   const openNew = () => {
     setEditingId(null);
