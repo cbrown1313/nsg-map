@@ -12,13 +12,26 @@ import {
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { projectLatLng } from '@/lib/projection';
 import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
 type ClinicRow = Tables<'clinic_locations'>;
 
 const emptyForm: TablesInsert<'clinic_locations'> = {
-  id: '', name: '', city: '', state: '', slug: '', external_url: '', svg_x: 0, svg_y: 0,
+  id: '', name: '', city: '', state: '', slug: '', external_url: '',
+  latitude: null, longitude: null, svg_x: 0, svg_y: 0,
 };
+
+/** Derive map pixel coordinates from lat/lng when both are present. */
+function withProjected(row: TablesInsert<'clinic_locations'>): TablesInsert<'clinic_locations'> {
+  const lat = row.latitude != null ? Number(row.latitude) : null;
+  const lng = row.longitude != null ? Number(row.longitude) : null;
+  if (lat == null || lng == null || Number.isNaN(lat) || Number.isNaN(lng)) return row;
+  const point = projectLatLng(lat, lng);
+  if (!point) return row;
+  return { ...row, svg_x: point.x, svg_y: point.y };
+}
+
 
 const LocationsEditor = () => {
   const qc = useQueryClient();
