@@ -56,6 +56,8 @@ export type Database = {
           created_at: string
           external_url: string | null
           id: string
+          latitude: number | null
+          longitude: number | null
           name: string
           slug: string
           state: string
@@ -68,6 +70,8 @@ export type Database = {
           created_at?: string
           external_url?: string | null
           id: string
+          latitude?: number | null
+          longitude?: number | null
           name: string
           slug: string
           state: string
@@ -80,6 +84,8 @@ export type Database = {
           created_at?: string
           external_url?: string | null
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           name?: string
           slug?: string
           state?: string

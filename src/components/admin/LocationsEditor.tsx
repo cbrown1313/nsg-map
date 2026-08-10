@@ -12,13 +12,26 @@ import {
 import { Label } from '@/components/ui/label';
 import { toast } from '@/hooks/use-toast';
 import { Plus, Pencil, Trash2 } from 'lucide-react';
+import { projectLatLng } from '@/lib/projection';
 import type { Tables, TablesInsert } from '@/integrations/supabase/types';
 
 type ClinicRow = Tables<'clinic_locations'>;
 
 const emptyForm: TablesInsert<'clinic_locations'> = {
-  id: '', name: '', city: '', state: '', slug: '', external_url: '', svg_x: 0, svg_y: 0,
+  id: '', name: '', city: '', state: '', slug: '', external_url: '',
+  latitude: null, longitude: null, svg_x: 0, svg_y: 0,
 };
+
+/** Derive map pixel coordinates from lat/lng when both are present. */
+function withProjected(row: TablesInsert<'clinic_locations'>): TablesInsert<'clinic_locations'> {
+  const lat = row.latitude != null ? Number(row.latitude) : null;
+  const lng = row.longitude != null ? Number(row.longitude) : null;
+  if (lat == null || lng == null || Number.isNaN(lat) || Number.isNaN(lng)) return row;
+  const point = projectLatLng(lat, lng);
+  if (!point) return row;
+  return { ...row, svg_x: point.x, svg_y: point.y };
+}
+
 
 const LocationsEditor = () => {
   const qc = useQueryClient();
@@ -36,11 +49,14 @@ const LocationsEditor = () => {
   });
 
   const upsert = useMutation({
-    mutationFn: async (row: TablesInsert<'clinic_locations'>) => {
+    mutationFn: async (raw: TablesInsert<'clinic_locations'>) => {
+      const row = withProjected(raw);
       if (editingId) {
         const { error } = await supabase.from('clinic_locations').update({
           name: row.name, city: row.city, state: row.state, slug: row.slug,
-          external_url: row.external_url || null, svg_x: row.svg_x, svg_y: row.svg_y,
+          external_url: row.external_url || null,
+          latitude: row.latitude, longitude: row.longitude,
+          svg_x: row.svg_x, svg_y: row.svg_y,
         }).eq('id', editingId);
         if (error) throw error;
       } else {
@@ -48,6 +64,7 @@ const LocationsEditor = () => {
         if (error) throw error;
       }
     },
+
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin_clinic_locations'] });
       qc.invalidateQueries({ queryKey: ['clinic_locations'] });
@@ -74,10 +91,13 @@ const LocationsEditor = () => {
     setEditingId(loc.id);
     setForm({
       id: loc.id, name: loc.name, city: loc.city, state: loc.state, slug: loc.slug,
-      external_url: loc.external_url ?? '', svg_x: loc.svg_x, svg_y: loc.svg_y,
+      external_url: loc.external_url ?? '',
+      latitude: loc.latitude, longitude: loc.longitude,
+      svg_x: loc.svg_x, svg_y: loc.svg_y,
     });
     setDialogOpen(true);
   };
+
 
   const openNew = () => {
     setEditingId(null);
@@ -96,8 +116,11 @@ const LocationsEditor = () => {
     upsert.mutate(form);
   };
 
-  const set = (field: keyof typeof form, value: string | number) =>
+  const set = (field: keyof typeof form, value: string | number | null) =>
     setForm((f) => ({ ...f, [field]: value }));
+
+  const preview = withProjected(form);
+
 
   if (isLoading) return <p className="text-muted-foreground">Loading…</p>;
 
@@ -121,9 +144,12 @@ const LocationsEditor = () => {
                 <div><Label>State</Label><Input value={form.state} onChange={(e) => set('state', e.target.value.toUpperCase())} maxLength={2} required /></div>
                 <div><Label>Slug</Label><Input value={form.slug} onChange={(e) => set('slug', e.target.value)} required /></div>
                 <div><Label>External URL</Label><Input value={form.external_url ?? ''} onChange={(e) => set('external_url', e.target.value)} /></div>
-                <div><Label>SVG X</Label><Input type="number" value={form.svg_x} onChange={(e) => set('svg_x', Number(e.target.value))} required /></div>
-                <div><Label>SVG Y</Label><Input type="number" value={form.svg_y} onChange={(e) => set('svg_y', Number(e.target.value))} required /></div>
+                <div><Label>Latitude</Label><Input type="number" step="any" value={form.latitude ?? ''} onChange={(e) => set('latitude', e.target.value === '' ? null : Number(e.target.value))} required /></div>
+                <div><Label>Longitude</Label><Input type="number" step="any" value={form.longitude ?? ''} onChange={(e) => set('longitude', e.target.value === '' ? null : Number(e.target.value))} required /></div>
               </div>
+              <p className="text-xs text-muted-foreground">
+                Map position is calculated automatically from the coordinates: X {preview.svg_x}, Y {preview.svg_y}
+              </p>
               <div className="flex justify-end gap-2">
                 <Button type="button" variant="outline" onClick={closeDialog}>Cancel</Button>
                 <Button type="submit" disabled={upsert.isPending}>{editingId ? 'Save' : 'Add'}</Button>
