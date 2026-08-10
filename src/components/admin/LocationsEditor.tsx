@@ -49,11 +49,14 @@ const LocationsEditor = () => {
   });
 
   const upsert = useMutation({
-    mutationFn: async (row: TablesInsert<'clinic_locations'>) => {
+    mutationFn: async (raw: TablesInsert<'clinic_locations'>) => {
+      const row = withProjected(raw);
       if (editingId) {
         const { error } = await supabase.from('clinic_locations').update({
           name: row.name, city: row.city, state: row.state, slug: row.slug,
-          external_url: row.external_url || null, svg_x: row.svg_x, svg_y: row.svg_y,
+          external_url: row.external_url || null,
+          latitude: row.latitude, longitude: row.longitude,
+          svg_x: row.svg_x, svg_y: row.svg_y,
         }).eq('id', editingId);
         if (error) throw error;
       } else {
@@ -61,6 +64,7 @@ const LocationsEditor = () => {
         if (error) throw error;
       }
     },
+
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['admin_clinic_locations'] });
       qc.invalidateQueries({ queryKey: ['clinic_locations'] });
