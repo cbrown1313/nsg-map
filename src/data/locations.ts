@@ -56,18 +56,22 @@ export interface ClinicLocation {
   slug: string;
   /** If set, clicking this clinic navigates to an external URL instead of /locations/:slug/ */
   externalUrl?: string;
-  // SVG coordinates (approximate positions on 960x600 viewBox)
+  /** Real-world coordinates — svgX/svgY are derived from these via the Albers USA projection */
+  latitude?: number;
+  longitude?: number;
+  // SVG coordinates (960x600 viewBox)
   svgX: number;
   svgY: number;
 }
 
 export const CLINIC_LOCATIONS: ClinicLocation[] = [
-  { id: 'league-city', name: 'Houston – League City', city: 'League City', state: 'TX', slug: 'houston-league-city', svgX: 498, svgY: 481 },
-  { id: 'missouri-city', name: 'Houston – Missouri City', city: 'Missouri City', state: 'TX', slug: 'houston-missouri-city', svgX: 485, svgY: 476 },
-  { id: 'plano', name: 'Dallas – Plano', city: 'Plano', state: 'TX', slug: 'dallas-plano', externalUrl: 'https://neurocognitivespecialtygroup.com/location/dallas-tx/', svgX: 473, svgY: 408 },
-  { id: 'pensacola', name: 'Pensacola', city: 'Pensacola', state: 'FL', slug: 'pensacola', externalUrl: 'https://neurocognitivespecialtygroup.com/location/pensacola-fl/', svgX: 646, svgY: 445 },
-  { id: 'slidell', name: 'New Orleans – Slidell', city: 'Slidell', state: 'LA', slug: 'new-orleans-slidell', externalUrl: 'https://neurocognitivespecialtygroup.com/location/new-orleans-la/', svgX: 608, svgY: 454 },
-  { id: 'ridgeland', name: 'Jackson – Ridgeland', city: 'Ridgeland', state: 'MS', slug: 'jackson-ridgeland', svgX: 604, svgY: 407 },
-  { id: 'alpharetta', name: 'Atlanta – Alpharetta', city: 'Alpharetta', state: 'GA', slug: 'atlanta-alpharetta', externalUrl: 'https://neurocognitivespecialtygroup.com/location/atlanta-ga/', svgX: 705, svgY: 378 },
-  { id: 'fort-lauderdale', name: 'Fort Lauderdale', city: 'Fort Lauderdale', state: 'FL', slug: 'fort-lauderdale', svgX: 763, svgY: 512 },
+  { id: 'league-city', name: 'Houston – League City', city: 'League City', state: 'TX', slug: 'houston-league-city', externalUrl: 'https://neurocognitivespecialtygroup.com/location/houston-tx/', latitude: 29.5075, longitude: -95.0949, svgX: 508, svgY: 506.7 },
+  { id: 'missouri-city', name: 'Houston – Missouri City', city: 'Missouri City', state: 'TX', slug: 'houston-missouri-city', externalUrl: 'https://neurocognitivespecialtygroup.com/location/houston-tx/', latitude: 29.6186, longitude: -95.5377, svgX: 499.3, svgY: 504.3 },
+  { id: 'plano', name: 'Dallas – Plano', city: 'Plano', state: 'TX', slug: 'dallas-plano', externalUrl: 'https://neurocognitivespecialtygroup.com/location/dallas-tx/', latitude: 33.0198, longitude: -96.6989, svgX: 477.4, svgY: 428 },
+  { id: 'pensacola', name: 'Pensacola', city: 'Pensacola', state: 'FL', slug: 'pensacola', externalUrl: 'https://neurocognitivespecialtygroup.com/location/pensacola-fl/', latitude: 30.4213, longitude: -87.2169, svgX: 659, svgY: 478.5 },
+  { id: 'slidell', name: 'New Orleans – Slidell', city: 'Slidell', state: 'LA', slug: 'new-orleans-slidell', externalUrl: 'https://neurocognitivespecialtygroup.com/location/new-orleans-la/', latitude: 30.2752, longitude: -89.7812, svgX: 610.1, svgY: 485.7 },
+  { id: 'ridgeland', name: 'Jackson – Ridgeland', city: 'Ridgeland', state: 'MS', slug: 'jackson-ridgeland', externalUrl: 'https://neurocognitivespecialtygroup.com/location/jackson-ms/', latitude: 32.4285, longitude: -90.1323, svgX: 600.3, svgY: 437.9 },
+  { id: 'alpharetta', name: 'Atlanta – Alpharetta', city: 'Alpharetta', state: 'GA', slug: 'atlanta-alpharetta', externalUrl: 'https://neurocognitivespecialtygroup.com/location/atlanta-ga/', latitude: 34.0754, longitude: -84.2941, svgX: 704.8, svgY: 391.1 },
+  { id: 'fort-lauderdale', name: 'Fort Lauderdale', city: 'Fort Lauderdale', state: 'FL', slug: 'fort-lauderdale', latitude: 26.1224, longitude: -80.1373, svgX: 809.8, svgY: 555.4 },
 ];
+
